@@ -92,10 +92,7 @@ const EventRow = ({ ev, isOpen, onToggle, showEnded }) => {
         <td className="px-3 py-2 text-base">{showEnded ? formatTime(ev.endedAt) : formatTime(ev.startedAt)}</td>
         <td className="px-3 py-2 text-base">{formatTime(ev.lastSeenAt)}</td>
         <td className="px-3 py-2 text-base">
-          <button
-            onClick={onToggle}
-            className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
-          >
+          <button onClick={onToggle} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
             {isOpen ? 'Tutup' : 'Detail'}
           </button>
         </td>
@@ -128,14 +125,14 @@ export const EventTable = ({ events, activeCount, showEnded = false }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
-      <div className="flex justify-between items-center mb-2">
+    <div className="bg-white rounded-lg shadow flex flex-col h-full">
+      <div className="flex justify-between items-center mb-2 flex-shrink-0 px-1">
         <h4 className="font-semibold text-xl">Event</h4>
         <span className="bg-red-500 text-white px-3 py-1 rounded text-sm">{activeCount} Aktif</span>
       </div>
-      <div className="overflow-x-auto max-h-64 overflow-y-auto">
-        <table className="table-auto w-full text-base border">
-          <thead className="bg-gray-100 sticky top-0">
+      <div className="flex-1 min-h-0 overflow-auto">
+        <table className="w-full text-base border-collapse">
+          <thead className="bg-gray-100 sticky top-0 z-10">
             <tr>
               <th className="border px-3 py-2 text-left">ID</th>
               <th className="border px-3 py-2 text-left">Event</th>
@@ -155,6 +152,11 @@ export const EventTable = ({ events, activeCount, showEnded = false }) => {
                 showEnded={showEnded}
               />
             ))}
+            {events.length === 0 && (
+              <tr>
+                <td colSpan="6" className="text-center py-4 text-gray-500">Tidak ada event</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
