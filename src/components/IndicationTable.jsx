@@ -2,37 +2,38 @@ import React, { useState } from 'react';
 import { formatTime } from '../utils/utils';
 
 const IndicationRow = ({ ind, isOpen, onToggle, showEnded }) => {
-  const renderDetails = (details, type) => {
-    if (!details) return '-';
-    if (type === 'CPU_Overload') {
-      return (
-        <div className="border rounded p-2">
-          <div className="text-sm text-gray-500">CPU at trigger: {details.cpu_at_trigger}%</div>
-        </div>
-      );
+  const renderDetails = () => {
+    if (!ind.events || ind.events.length === 0) {
+      return <div className="text-sm text-gray-500">Tidak ada event terkait.</div>;
     }
-    if (type === 'Packet_Loss_High') {
-      return (
-        <div className="border rounded p-2">
-          <div className="text-sm text-gray-500">Loss: {details.loss_pct}%</div>
-        </div>
-      );
-    }
-    if (type === 'Latency_Degraded') {
-      return (
-        <div className="border rounded p-2">
-          <div className="text-sm text-gray-500">Delay: {details.delay_avg} ms</div>
-        </div>
-      );
-    }
-    return <pre className="text-xs bg-gray-100 p-2 rounded">{JSON.stringify(details, null, 2)}</pre>;
+    return (
+      <div className="space-y-2">
+        <h5 className="font-semibold text-base">Event Terkait:</h5>
+        <ul className="list-disc list-inside">
+          {ind.events.map(ev => (
+            <li key={ev.id} className="text-sm">
+              <span className="font-medium">{ev.type}</span>
+              <span className="text-gray-500"> (Status: {ev.status})</span>
+              <span className="text-gray-500"> - Mulai: {formatTime(ev.startedAt)}</span>
+              {ev.evidence && (
+                <pre className="text-xs bg-gray-100 p-1 rounded mt-1 overflow-x-auto">
+                  {JSON.stringify(ev.evidence, null, 2)}
+                </pre>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
+
+  const cols = showEnded ? 6 : 5;
 
   return (
     <>
       <tr className="border-b hover:bg-gray-50">
         <td className="px-3 py-2 text-base">{ind.id}</td>
-        <td className="px-3 py-2 text-base">{ind.type}</td>
+        <td className="px-3 py-2 text-base">{ind.indication}</td>
         <td className="px-3 py-2 text-base">
           <span
             className={`px-2 py-1 rounded text-white text-sm ${
@@ -42,8 +43,10 @@ const IndicationRow = ({ ind, isOpen, onToggle, showEnded }) => {
             {ind.status}
           </span>
         </td>
-        <td className="px-3 py-2 text-base">{showEnded ? formatTime(ind.endedAt) : formatTime(ind.startedAt)}</td>
-        <td className="px-3 py-2 text-base">{formatTime(ind.lastSeenAt)}</td>
+        <td className="px-3 py-2 text-base">{formatTime(ind.startedAt)}</td>
+        {showEnded && (
+          <td className="px-3 py-2 text-base">{ind.endedAt ? formatTime(ind.endedAt) : '-'}</td>
+        )}
         <td className="px-3 py-2 text-base">
           <button onClick={onToggle} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
             {isOpen ? 'Tutup' : 'Detail'}
@@ -52,15 +55,14 @@ const IndicationRow = ({ ind, isOpen, onToggle, showEnded }) => {
       </tr>
       {isOpen && (
         <tr className="bg-gray-50">
-          <td colSpan="6" className="px-4 py-3">
+          <td colSpan={cols} className="px-4 py-3">
             <div className="border-l-4 border-gray-400 pl-4">
-              <div className="text-base"><span className="font-semibold">Rule ID:</span> {ind.ruleId}</div>
-              {!showEnded && ind.cooldownUntil && (
-                <div className="text-base"><span className="font-semibold">Cooldown until:</span> {formatTime(ind.cooldownUntil)}</div>
+              <div className="text-base"><span className="font-semibold">Correlation ID:</span> {ind.correlationId}</div>
+              {ind.recommended_action && (
+                <div className="text-base mt-1"><span className="font-semibold">Rekomendasi:</span> {ind.recommended_action}</div>
               )}
-              <div className="text-base mt-2">
-                <span className="font-semibold">Details:</span>
-                <div className="mt-1">{renderDetails(ind.details, ind.type)}</div>
+              <div className="mt-3">
+                {renderDetails()}
               </div>
             </div>
           </td>
@@ -77,6 +79,8 @@ export const IndicationTable = ({ indications, activeCount, showEnded = false })
     setOpenRow(openRow === id ? null : id);
   };
 
+  const cols = showEnded ? 6 : 5;
+
   return (
     <div className="bg-white rounded-lg shadow flex flex-col h-full">
       <div className="flex justify-between items-center mb-2 flex-shrink-0 px-1">
@@ -90,8 +94,8 @@ export const IndicationTable = ({ indications, activeCount, showEnded = false })
               <th className="border px-3 py-2 text-left">ID</th>
               <th className="border px-3 py-2 text-left">Jenis</th>
               <th className="border px-3 py-2 text-left">Status</th>
-              <th className="border px-3 py-2 text-left">{showEnded ? 'Berakhir' : 'Mulai'}</th>
-              <th className="border px-3 py-2 text-left">Last Seen</th>
+              <th className="border px-3 py-2 text-left">Mulai</th>
+              {showEnded && <th className="border px-3 py-2 text-left">Berakhir</th>}
               <th className="border px-3 py-2 text-left">Detail</th>
             </tr>
           </thead>
@@ -107,7 +111,7 @@ export const IndicationTable = ({ indications, activeCount, showEnded = false })
             ))}
             {indications.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center py-4 text-gray-500">Tidak ada indikasi Gangguan</td>
+                <td colSpan={cols} className="text-center py-4 text-gray-500">Tidak ada indikasi Gangguan</td>
               </tr>
             )}
           </tbody>

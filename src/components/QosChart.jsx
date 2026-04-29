@@ -5,7 +5,7 @@ export const QosChart = ({ packetLossData, delayData }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
-  const lossPackets = (packetLossData || []).map(d => (d.packetSent ?? d.sent ?? 0) - (d.packetReceive ?? d.received ?? 0));
+  const lossPackets = (packetLossData || []).map(d => (d.packetSent ?? d.sent ?? 0) - (d.packetReceived ?? d.received ?? 0));
   const delayValues = (delayData || []).map(d => d.avgMs ?? d.average ?? d.avg ?? 0);
 
   const timestamps = (packetLossData || []).map(d => {

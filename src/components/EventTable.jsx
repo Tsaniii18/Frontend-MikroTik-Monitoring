@@ -19,11 +19,13 @@ const EventRow = ({ ev, isOpen, onToggle, showEnded }) => {
             {evidence.top_tasks_at_trigger && (
               <div className="border rounded p-2">
                 <div className="text-sm text-gray-500 mb-1">Top tasks at trigger</div>
-                <ul className="list-disc pl-5 text-base">
-                  {evidence.top_tasks_at_trigger.map((t, i) => (
-                    <li key={i}>{t.name}: {t.usage}%</li>
-                  ))}
-                </ul>
+                <div className="max-h-48 overflow-y-auto">
+                  <ul className="list-disc pl-5 text-base">
+                    {evidence.top_tasks_at_trigger.map((t, i) => (
+                      <li key={i}>{t.name}: {t.usage}%</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>
@@ -89,8 +91,12 @@ const EventRow = ({ ev, isOpen, onToggle, showEnded }) => {
             {ev.status}
           </span>
         </td>
-        <td className="px-3 py-2 text-base">{showEnded ? formatTime(ev.endedAt) : formatTime(ev.startedAt)}</td>
-        <td className="px-3 py-2 text-base">{formatTime(ev.lastSeenAt)}</td>
+        <td className="px-3 py-2 text-base">{formatTime(ev.startedAt)}</td>
+        {showEnded ? (
+          <td className="px-3 py-2 text-base">{ev.endedAt ? formatTime(ev.endedAt) : '-'}</td>
+        ) : (
+          <td className="px-3 py-2 text-base">{formatTime(ev.lastSeenAt)}</td>
+        )}
         <td className="px-3 py-2 text-base">
           <button onClick={onToggle} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
             {isOpen ? 'Tutup' : 'Detail'}
@@ -100,7 +106,7 @@ const EventRow = ({ ev, isOpen, onToggle, showEnded }) => {
       {isOpen && (
         <tr className="bg-gray-50">
           <td colSpan="6" className="px-4 py-3">
-            <div className="border-l-4 border-gray-400 pl-4 space-y-2">
+            <div className="border-l-4 border-gray-400 pl-4 space-y-2 max-h-96 overflow-y-auto">
               <div className="text-base"><span className="font-semibold">Rule ID:</span> {ev.ruleId}</div>
               {!showEnded && ev.cooldownUntil && (
                 <div className="text-base"><span className="font-semibold">Cooldown until:</span> {formatTime(ev.cooldownUntil)}</div>
@@ -137,8 +143,8 @@ export const EventTable = ({ events, activeCount, showEnded = false }) => {
               <th className="border px-3 py-2 text-left">ID</th>
               <th className="border px-3 py-2 text-left">Event</th>
               <th className="border px-3 py-2 text-left">Status</th>
-              <th className="border px-3 py-2 text-left">{showEnded ? 'Berakhir' : 'Mulai'}</th>
-              <th className="border px-3 py-2 text-left">Last Seen</th>
+              <th className="border px-3 py-2 text-left">Mulai</th>
+              <th className="border px-3 py-2 text-left">{showEnded ? 'Berakhir' : 'Last Seen'}</th>
               <th className="border px-3 py-2 text-left">Detail</th>
             </tr>
           </thead>

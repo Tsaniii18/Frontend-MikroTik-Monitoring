@@ -37,7 +37,7 @@ const buildRouter = (data) => ({
 const computePacketLossStats = (data) => {
   if (!data?.length) return { totalSent: 0, totalReceived: 0, totalLoss: 0, lossPct: 0 };
   const totalSent = data.reduce((s, d) => s + (d.packetSent || 0), 0);
-  const totalReceived = data.reduce((s, d) => s + (d.packetReceive || 0), 0);
+  const totalReceived = data.reduce((s, d) => s + (d.packetReceived || 0), 0);
   const totalLoss = totalSent - totalReceived;
   const lossPct = totalSent ? ((totalLoss / totalSent) * 100).toFixed(2) : 0;
   return { totalSent, totalReceived, totalLoss, lossPct: Number(lossPct) };
@@ -62,7 +62,7 @@ function App() {
   const currentDelay = windows.delay.data.length ? windows.delay.data.at(-1).avgMs : 0;
   const lastPacketLoss = windows.packetLoss.data.at(-1);
   const currentPacketLossPct = lastPacketLoss?.packetSent
-    ? ((lastPacketLoss.packetSent - lastPacketLoss.packetReceive) / lastPacketLoss.packetSent) * 100
+    ? lastPacketLoss.packetSent - lastPacketLoss.packetReceived 
     : 0;
   const packetStats = computePacketLossStats(windows.packetLoss.data);
   const displayEvents = isRealtime ? events : historyEvents;
@@ -203,7 +203,7 @@ function App() {
                 <div className="font-semibold text-gray-700 mb-3">Packet Loss</div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                   <span className="text-gray-600">Current Loss:</span>
-                  <span className="font-mono text-red-600 font-medium">{currentPacketLossPct.toFixed(2)}%</span>
+                  <span className="font-mono text-red-600 font-medium">{currentPacketLossPct}</span>
                   <span className="text-gray-600">Packets Sent:</span>
                   <span className="font-mono">{packetStats.totalSent}</span>
                   <span className="text-gray-600">Packets Received:</span>
