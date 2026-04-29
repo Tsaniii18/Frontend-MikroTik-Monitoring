@@ -37,7 +37,7 @@ const IndicationRow = ({ ind, isOpen, onToggle, showEnded }) => {
         <td className="px-3 py-2 text-base">
           <span
             className={`px-2 py-1 rounded text-white text-sm ${
-              ind.status === 'active' ? 'bg-yellow-500' : 'bg-gray-500'
+              ind.status === 'active' ? 'bg-red-500' : 'bg-gray-500'
             }`}
           >
             {ind.status}
@@ -56,7 +56,7 @@ const IndicationRow = ({ ind, isOpen, onToggle, showEnded }) => {
       {isOpen && (
         <tr className="bg-gray-50">
           <td colSpan={cols} className="px-4 py-3">
-            <div className="border-l-4 border-gray-400 pl-4">
+            <div className="max-h-80 overflow-y-auto border-l-4 border-gray-400 pl-4">
               <div className="text-base"><span className="font-semibold">Correlation ID:</span> {ind.correlationId}</div>
               {ind.recommended_action && (
                 <div className="text-base mt-1"><span className="font-semibold">Rekomendasi:</span> {ind.recommended_action}</div>
